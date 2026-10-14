@@ -10,8 +10,11 @@ namespace InventoryApp.ViewModels;
 public partial class ProductListViewModel : ObservableObject
 {
     private readonly DatabaseService _databaseService;
+    private List<Product> _allProducts = new();
 
     public ObservableCollection<Product> Products { get; } = new();
+
+    public List<int> PageSizes { get; } = new() { 10, 25, 50, 100 };
 
     [ObservableProperty]
     private string _searchText = string.Empty;
@@ -19,7 +22,16 @@ public partial class ProductListViewModel : ObservableObject
     [ObservableProperty]
     private bool _isRefreshing;
 
-    private List<Product> _allProducts = new();
+    [ObservableProperty]
+    private int _pageSize = 25;
+
+    [ObservableProperty]
+    private int _currentPage = 1;
+
+    public int TotalPages { get; private set; }
+    public int TotalItems => _allProducts.Count;
+    public bool HasPreviousPage => CurrentPage > 1;
+    public bool HasNextPage => CurrentPage < TotalPages;
 
     public ProductListViewModel(DatabaseService databaseService)
     {
@@ -35,7 +47,7 @@ public partial class ProductListViewModel : ObservableObject
         {
             IsRefreshing = true;
             _allProducts = await _databaseService.GetProductsAsync();
-            FilterProducts();
+            ApplyPagination();
         }
         finally
         {
@@ -45,23 +57,43 @@ public partial class ProductListViewModel : ObservableObject
 
     partial void OnSearchTextChanged(string value)
     {
-        FilterProducts();
+        CurrentPage = 1;
+        ApplyPagination();
     }
 
-    private void FilterProducts()
+    partial void OnPageSizeChanged(int value)
     {
-        Products.Clear();
+        if (value <= 0) return;
 
+        CurrentPage = 1;
+        ApplyPagination();
+    }
+
+    private void ApplyPagination()
+    {
         var filtered = string.IsNullOrWhiteSpace(SearchText)
             ? _allProducts
             : _allProducts.Where(p =>
                 p.Name.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
                 p.Barcode.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
 
-        foreach (var product in filtered)
+        var items = filtered.ToList();
+        TotalPages = items.Count == 0 ? 1 : (int)Math.Ceiling(items.Count / (double)PageSize);
+        CurrentPage = Math.Clamp(CurrentPage, 1, TotalPages);
+
+        var skip = (CurrentPage - 1) * PageSize;
+        var pageItems = items.Skip(skip).Take(PageSize).ToList();
+
+        Products.Clear();
+        foreach (var product in pageItems)
         {
             Products.Add(product);
         }
+
+        OnPropertyChanged(nameof(TotalItems));
+        OnPropertyChanged(nameof(HasPreviousPage));
+        OnPropertyChanged(nameof(HasNextPage));
+        OnPropertyChanged(nameof(TotalPages));
     }
 
     [RelayCommand]
@@ -104,5 +136,21 @@ public partial class ProductListViewModel : ObservableObject
         }
 
         await LoadProductsAsync();
+    }
+
+    [RelayCommand]
+    private void PreviousPage()
+    {
+        if (!HasPreviousPage) return;
+        CurrentPage--;
+        ApplyPagination();
+    }
+
+    [RelayCommand]
+    private void NextPage()
+    {
+        if (!HasNextPage) return;
+        CurrentPage++;
+        ApplyPagination();
     }
 }

@@ -8,12 +8,12 @@ public class QuantityToColorConverter : IValueConverter
     {
         if (value is decimal quantity)
         {
-            return quantity == 0 ? Colors.Red : Colors.Black;
+            return quantity == 0 ? Colors.Red : Colors.BlueViolet;
         }
 
         if (value is int intQuantity)
         {
-            return intQuantity == 0 ? Colors.Red : Colors.Black;
+            return intQuantity == 0 ? Colors.Red : Colors.BlueViolet;
         }
 
         return Colors.Black;
