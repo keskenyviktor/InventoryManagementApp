@@ -50,6 +50,11 @@ public class DatabaseService
         return await _database.UpdateAsync(product);
     }
 
+    public async Task<int> DeleteProductAsync(Product product)
+    {
+        return await _database.DeleteAsync(product);
+    }
+
     public async Task<Product?> GetProductByIdAsync(int id)
     {
         return await _database.Table<Product>().FirstOrDefaultAsync(p => p.Id == id);

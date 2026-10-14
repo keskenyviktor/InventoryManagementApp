@@ -77,4 +77,32 @@ public partial class ProductListViewModel : ObservableObject
 
         await Shell.Current.GoToAsync($"{nameof(ProductDetailPage)}?Id={product.Id}");
     }
+
+    [RelayCommand]
+    private async Task IncreaseQuantityAsync(Product product)
+    {
+        if (product == null) return;
+
+        product.Quantity += 1;
+        await _databaseService.UpdateProductAsync(product);
+        await LoadProductsAsync();
+    }
+
+    [RelayCommand]
+    private async Task DecreaseOrDeleteQuantityAsync(Product product)
+    {
+        if (product == null) return;
+
+        if (product.Quantity > 0)
+        {
+            product.Quantity -= 1;
+            await _databaseService.UpdateProductAsync(product);
+        }
+        else
+        {
+            await _databaseService.DeleteProductAsync(product);
+        }
+
+        await LoadProductsAsync();
+    }
 }
