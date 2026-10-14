@@ -3,12 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InventoryApp.Data;
 using InventoryApp.Models;
+using InventoryApp.Services;
 
 namespace InventoryApp.ViewModels;
 
 public partial class AddProductViewModel : ObservableObject
 {
-    private readonly DatabaseService _databaseService;
+    private readonly IProductRepository _databaseService;
+    private readonly IAppNavigation _navigation;
     private bool _nameTouched;
     private bool _barcodeTouched;
     private bool _priceTouched;
@@ -63,9 +65,10 @@ public partial class AddProductViewModel : ObservableObject
     public bool ShowPriceError => !string.IsNullOrEmpty(PriceError);
     public bool ShowQuantityError => !string.IsNullOrEmpty(QuantityError);
 
-    public AddProductViewModel(DatabaseService databaseService)
+    public AddProductViewModel(IProductRepository databaseService, IAppNavigation navigation)
     {
         _databaseService = databaseService;
+        _navigation = navigation;
     }
 
     partial void OnNameChanged(string value)
@@ -135,7 +138,7 @@ public partial class AddProductViewModel : ObservableObject
                 Quantity = parsedQuantity
             });
 
-            await Shell.Current.GoToAsync("..");
+            await _navigation.GoBackAsync();
         }
         finally
         {

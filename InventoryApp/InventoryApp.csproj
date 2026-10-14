@@ -80,4 +80,8 @@
 	  </MauiXaml>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Compile Remove="InventoryApp.Tests\**\*.cs" />
+	</ItemGroup>
+
 </Project>

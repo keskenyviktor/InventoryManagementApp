@@ -17,3 +17,11 @@ Ez a projekt egy .NET MAUI leltáralkalmazás, amely lokális SQLite adatbázisb
 - közvetlen mennyiségmódosítás a listából
 - import/export CSV vagy JSON formátumban
 - jobb hibakezelés és felhasználói visszajelzések
+
+## Automatizált tesztek
+
+A Windows xUnit tesztprojekt a ViewModel-validációt, keresést, lapozást, készletmódosítást, készletjelző konvertereket, valamint az SQLite induló adatait és CRUD műveleteit ellenőrzi. Futtatás az `InventoryApp` könyvtárból:
+
+```powershell
+dotnet test InventoryApp.Tests\InventoryApp.Tests.csproj -p:EnableWindowsTargeting=true
+```

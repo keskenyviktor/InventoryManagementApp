@@ -3,13 +3,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using InventoryApp.Data;
 using InventoryApp.Models;
+using InventoryApp.Services;
 using InventoryApp.Views;
 
 namespace InventoryApp.ViewModels;
 
 public partial class ProductListViewModel : ObservableObject
 {
-    private readonly DatabaseService _databaseService;
+    private readonly IProductRepository _databaseService;
+    private readonly IAppNavigation _navigation;
     private List<Product> _allProducts = new();
 
     public ObservableCollection<Product> Products { get; } = new();
@@ -36,9 +38,10 @@ public partial class ProductListViewModel : ObservableObject
     public bool HasPreviousPage => CurrentPage > 1;
     public bool HasNextPage => CurrentPage < TotalPages;
 
-    public ProductListViewModel(DatabaseService databaseService)
+    public ProductListViewModel(IProductRepository databaseService, IAppNavigation navigation)
     {
         _databaseService = databaseService;
+        _navigation = navigation;
     }
 
     [RelayCommand]
@@ -104,7 +107,7 @@ public partial class ProductListViewModel : ObservableObject
     [RelayCommand]
     private async Task GoToAddProductAsync()
     {
-        await Shell.Current.GoToAsync(nameof(AddProductPage));
+        await _navigation.GoToAsync(nameof(AddProductPage));
     }
 
     [RelayCommand]
@@ -112,7 +115,7 @@ public partial class ProductListViewModel : ObservableObject
     {
         if (product == null) return;
 
-        await Shell.Current.GoToAsync($"{nameof(ProductDetailPage)}?Id={product.Id}");
+        await _navigation.GoToAsync($"{nameof(ProductDetailPage)}?Id={product.Id}");
     }
 
     [RelayCommand]

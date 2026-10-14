@@ -3,15 +3,19 @@ using SQLite;
 
 namespace InventoryApp.Data;
 
-public class DatabaseService
+public class DatabaseService : IProductRepository
 {
     private readonly SQLiteAsyncConnection _database;
+    private readonly Task _initializationTask;
 
-    public DatabaseService()
+    public DatabaseService() : this(Path.Combine(FileSystem.AppDataDirectory, "inventory.db3"))
     {
-        var dbPath = Path.Combine(FileSystem.AppDataDirectory, "inventory.db3");
-        _database = new SQLiteAsyncConnection(dbPath);
-        InitializeAsync().FireAndForget();
+    }
+
+    public DatabaseService(string databasePath)
+    {
+        _database = new SQLiteAsyncConnection(databasePath);
+        _initializationTask = InitializeAsync();
     }
 
     private async Task InitializeAsync()
@@ -67,7 +71,7 @@ public class DatabaseService
 
     public async Task<List<Product>> GetProductsAsync()
     {
-        await _database.CreateTableAsync<Product>();
+        await _initializationTask;
         return await _database.Table<Product>()
             .OrderBy(p => p.Name)
             .ToListAsync();
@@ -75,36 +79,31 @@ public class DatabaseService
 
     public async Task<int> AddProductAsync(Product product)
     {
+        await _initializationTask;
         return await _database.InsertAsync(product);
     }
 
     public async Task<bool> BarcodeExistsAsync(string barcode)
     {
+        await _initializationTask;
         return await _database.Table<Product>().FirstOrDefaultAsync(product => product.Barcode == barcode) is not null;
     }
 
     public async Task<int> UpdateProductAsync(Product product)
     {
+        await _initializationTask;
         return await _database.UpdateAsync(product);
     }
 
     public async Task<int> DeleteProductAsync(Product product)
     {
+        await _initializationTask;
         return await _database.DeleteAsync(product);
     }
 
     public async Task<Product?> GetProductByIdAsync(int id)
     {
+        await _initializationTask;
         return await _database.Table<Product>().FirstOrDefaultAsync(p => p.Id == id);
-    }
-}
-
-internal static class TaskExtensions
-{
-    public static void FireAndForget(this Task task)
-    {
-        _ = task.ContinueWith(
-            static t => Console.WriteLine(t.Exception),
-            TaskContinuationOptions.OnlyOnFaulted);
     }
 }

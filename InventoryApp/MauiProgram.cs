@@ -1,4 +1,5 @@
 ﻿using InventoryApp.Data;
+using InventoryApp.Services;
 using InventoryApp.ViewModels;
 using InventoryApp.Views;
 using Microsoft.Extensions.Logging;
@@ -19,6 +20,9 @@ namespace InventoryApp
                 });
 
             builder.Services.AddSingleton<DatabaseService>();
+            builder.Services.AddSingleton<IProductRepository>(services =>
+                services.GetRequiredService<DatabaseService>());
+            builder.Services.AddSingleton<IAppNavigation, ShellAppNavigation>();
 
             builder.Services.AddTransient<ProductListViewModel>();
             builder.Services.AddTransient<AddProductViewModel>();
