@@ -1,7 +1,9 @@
 ## Visual Studio / .NET Core / MAUI
-/[Bb]in/
-/[Oo]bj/
+[Bb]in/
+[Oo]bj/
 .vs/
+*.user
+*.suo
 *.user
 *.suo
 *.userosscache
