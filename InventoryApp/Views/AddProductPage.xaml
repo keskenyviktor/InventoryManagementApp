@@ -3,7 +3,24 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="InventoryApp.Views.AddProductPage"
              Title="Új termék">
-    <VerticalStackLayout Padding="20" Spacing="12">
-        <Label Text="A termék hozzáadása még nem lett megvalósítva a feladatban." />
-    </VerticalStackLayout>
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <Entry x:Name="NameEntry"
+                   Placeholder="Termék neve" />
+
+            <Entry x:Name="BarcodeEntry"
+                   Placeholder="Vonalkód" />
+
+            <Entry x:Name="PriceEntry"
+                   Keyboard="Numeric"
+                   Placeholder="Ár" />
+
+            <Entry x:Name="QuantityEntry"
+                   Keyboard="Numeric"
+                   Placeholder="Készlet" />
+
+            <Button Text="Mentés"
+                    Clicked="SaveButton_Clicked" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

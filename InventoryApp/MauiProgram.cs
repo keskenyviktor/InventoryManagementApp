@@ -22,6 +22,8 @@ namespace InventoryApp
 
             builder.Services.AddTransient<ProductListViewModel>();
             builder.Services.AddTransient<ProductListPage>();
+            builder.Services.AddTransient<AddProductPage>();
+            builder.Services.AddTransient<ProductDetailPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();
