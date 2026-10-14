@@ -30,6 +30,9 @@ public partial class ProductListViewModel : ObservableObject
 
     public int TotalPages { get; private set; }
     public int TotalItems => _allProducts.Count;
+    public string EmptyMessage => string.IsNullOrWhiteSpace(SearchText)
+        ? "Nincsenek termékek. Adjon hozzá új elemeket a + gombbal."
+        : "Nincs találat a keresésre.";
     public bool HasPreviousPage => CurrentPage > 1;
     public bool HasNextPage => CurrentPage < TotalPages;
 
@@ -59,6 +62,7 @@ public partial class ProductListViewModel : ObservableObject
     {
         CurrentPage = 1;
         ApplyPagination();
+        OnPropertyChanged(nameof(EmptyMessage));
     }
 
     partial void OnPageSizeChanged(int value)
@@ -91,6 +95,7 @@ public partial class ProductListViewModel : ObservableObject
         }
 
         OnPropertyChanged(nameof(TotalItems));
+        OnPropertyChanged(nameof(EmptyMessage));
         OnPropertyChanged(nameof(HasPreviousPage));
         OnPropertyChanged(nameof(HasNextPage));
         OnPropertyChanged(nameof(TotalPages));
