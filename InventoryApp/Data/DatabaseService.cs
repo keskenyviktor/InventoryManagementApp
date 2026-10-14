@@ -78,6 +78,11 @@ public class DatabaseService
         return await _database.InsertAsync(product);
     }
 
+    public async Task<bool> BarcodeExistsAsync(string barcode)
+    {
+        return await _database.Table<Product>().FirstOrDefaultAsync(product => product.Barcode == barcode) is not null;
+    }
+
     public async Task<int> UpdateProductAsync(Product product)
     {
         return await _database.UpdateAsync(product);

@@ -5,22 +5,57 @@
              Title="Új termék">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="12">
-            <Entry x:Name="NameEntry"
-                   Placeholder="Termék neve" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Placeholder="Termék neve"
+                       Text="{Binding Name}" />
+                <Label Text="{Binding NameError}"
+                       TextColor="Red"
+                       FontSize="12"
+                       IsVisible="{Binding ShowNameError}" />
+                <Label Text="• Adja meg a termék nevét."
+                       TextColor="Gray"
+                       FontSize="12"
+                       IsVisible="{Binding ShowNameRequirement}" />
+            </VerticalStackLayout>
 
-            <Entry x:Name="BarcodeEntry"
-                   Placeholder="Vonalkód" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Placeholder="Vonalkód"
+                       Text="{Binding Barcode}" />
+                <Label Text="{Binding BarcodeError}" TextColor="Red" FontSize="12"
+                       IsVisible="{Binding ShowBarcodeError}" />
+                <Label Text="• Adjon meg egy egyedi vonalkódot."
+                       TextColor="Gray"
+                       FontSize="12"
+                       IsVisible="{Binding ShowBarcodeRequirement}" />
+            </VerticalStackLayout>
 
-            <Entry x:Name="PriceEntry"
-                   Keyboard="Numeric"
-                   Placeholder="Ár" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Keyboard="Numeric"
+                       Placeholder="Ár"
+                       Text="{Binding Price}" />
+                <Label Text="{Binding PriceError}" TextColor="Red" FontSize="12"
+                       IsVisible="{Binding ShowPriceError}" />
+                <Label Text="• Adjon meg egy nem negatív árat."
+                       TextColor="Gray"
+                       FontSize="12"
+                       IsVisible="{Binding ShowPriceRequirement}" />
+            </VerticalStackLayout>
 
-            <Entry x:Name="QuantityEntry"
-                   Keyboard="Numeric"
-                   Placeholder="Készlet" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Keyboard="Numeric"
+                       Placeholder="Készlet"
+                       Text="{Binding Quantity}" />
+                <Label Text="{Binding QuantityError}" TextColor="Red" FontSize="12"
+                       IsVisible="{Binding ShowQuantityError}" />
+                <Label Text="• Adjon meg egy nem negatív egész készletmennyiséget."
+                       TextColor="Gray"
+                       FontSize="12"
+                       IsVisible="{Binding ShowQuantityRequirement}" />
+            </VerticalStackLayout>
 
             <Button Text="Mentés"
-                    Clicked="SaveButton_Clicked" />
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsSaveEnabled}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

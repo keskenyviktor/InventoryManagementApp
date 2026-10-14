@@ -21,6 +21,7 @@ namespace InventoryApp
             builder.Services.AddSingleton<DatabaseService>();
 
             builder.Services.AddTransient<ProductListViewModel>();
+            builder.Services.AddTransient<AddProductViewModel>();
             builder.Services.AddTransient<ProductListPage>();
             builder.Services.AddTransient<AddProductPage>();
             builder.Services.AddTransient<ProductDetailPage>();
