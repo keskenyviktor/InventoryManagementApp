@@ -1,4 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using InventoryApp.Data;
+using InventoryApp.ViewModels;
+using InventoryApp.Views;
+using Microsoft.Extensions.Logging;
 
 namespace InventoryApp
 {
@@ -15,8 +18,13 @@ namespace InventoryApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
+            builder.Services.AddSingleton<DatabaseService>();
+
+            builder.Services.AddTransient<ProductListViewModel>();
+            builder.Services.AddTransient<ProductListPage>();
+
 #if DEBUG
-    		builder.Logging.AddDebug();
+            builder.Logging.AddDebug();
 #endif
 
             return builder.Build();
