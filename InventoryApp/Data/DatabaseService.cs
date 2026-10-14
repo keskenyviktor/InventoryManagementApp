@@ -20,15 +20,48 @@ public class DatabaseService
 
         if (await _database.Table<Product>().CountAsync() == 0)
         {
-            var sampleProducts = new[]
+            var random = new Random();
+            var productNames = new[]
             {
-                new Product { Name = "Alma", Barcode = "1111111111111", Price = 249m, Quantity = 12m },
-                new Product { Name = "Körte", Barcode = "2222222222222", Price = 329m, Quantity = 0m },
-                new Product { Name = "Banán", Barcode = "3333333333333", Price = 199m, Quantity = 8m },
-                new Product { Name = "Tej", Barcode = "4444444444444", Price = 420m, Quantity = 0m }
+                "Alma", "Banán", "Körte", "Narancs", "Citrom", "Áfonya", "Mango", "Ananász", "Görögdinnye",
+                "Szőlő", "Birs", "Málna", "Kivi", "Pite", "Dió", "Füge", "Őszibarack", "Papaya", "Joghurt",
+                "Tej", "Kefir", "Sajt", "Kenyer", "Tészta", "Rizs", "Burgonya", "Paradicsom", "Uborka",
+                "Paprika", "Sárgarépa", "Lilahagyma", "Gomba", "Tojás", "Csirke", "Pulyka", "Hal", "Szalonna",
+                "Kávé", "Tea", "Cukor", "Só", "Olaj", "Bors", "Mustár", "Méz", "Mogyoró", "Mandarin"
             };
 
-            await _database.InsertAllAsync(sampleProducts);
+            var products = new List<Product>(5000);
+            var usedNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+            var usedBarcodes = new HashSet<string>();
+
+            for (var i = 0; i < 5000; i++)
+            {
+                var baseName = productNames[random.Next(productNames.Length)];
+                var candidateName = $"{baseName} {i:0000}";
+
+                while (!usedNames.Add(candidateName))
+                {
+                    candidateName = $"{baseName} {random.Next(10000, 99999)}";
+                }
+
+                var barcode = (1000000000000L + i).ToString();
+                while (!usedBarcodes.Add(barcode))
+                {
+                    barcode = (1000000000000L + i + random.Next(1, 1000)).ToString();
+                }
+
+                var price = (decimal)random.Next(100, 5000) + (decimal)random.NextDouble();
+
+                products.Add(new Product
+                {
+                    Name = candidateName,
+                    Barcode = barcode,
+                    Price = Math.Round(price, 2),
+                    Quantity = i % 10 == 0 ? 0 : random.Next(1, 101)
+                });
+            }
+
+            await _database.InsertAllAsync(products);
         }
     }
 
