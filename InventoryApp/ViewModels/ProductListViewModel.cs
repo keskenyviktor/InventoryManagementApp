@@ -10,7 +10,7 @@ namespace InventoryApp.ViewModels;
 
 public partial class ProductListViewModel : ObservableObject
 {
-    private readonly IProductRepository _databaseService;
+    private readonly IProductRepository _productRepository;
     private readonly IAppNavigation _navigation;
     private List<Product> _allProducts = new();
 
@@ -38,9 +38,9 @@ public partial class ProductListViewModel : ObservableObject
     public bool HasPreviousPage => CurrentPage > 1;
     public bool HasNextPage => CurrentPage < TotalPages;
 
-    public ProductListViewModel(IProductRepository databaseService, IAppNavigation navigation)
+    public ProductListViewModel(IProductRepository productRepository, IAppNavigation navigation)
     {
-        _databaseService = databaseService;
+        _productRepository = productRepository;
         _navigation = navigation;
     }
 
@@ -52,7 +52,7 @@ public partial class ProductListViewModel : ObservableObject
         try
         {
             IsRefreshing = true;
-            _allProducts = await _databaseService.GetProductsAsync();
+            _allProducts = await _productRepository.GetProductsAsync();
             ApplyPagination();
         }
         finally
@@ -124,7 +124,7 @@ public partial class ProductListViewModel : ObservableObject
         if (product == null) return;
 
         product.Quantity += 1;
-        await _databaseService.UpdateProductAsync(product);
+        await _productRepository.UpdateProductAsync(product);
         await LoadProductsAsync();
     }
 
@@ -136,11 +136,11 @@ public partial class ProductListViewModel : ObservableObject
         if (product.Quantity > 0)
         {
             product.Quantity -= 1;
-            await _databaseService.UpdateProductAsync(product);
+            await _productRepository.UpdateProductAsync(product);
         }
         else
         {
-            await _databaseService.DeleteProductAsync(product);
+            await _productRepository.DeleteProductAsync(product);
         }
 
         await LoadProductsAsync();

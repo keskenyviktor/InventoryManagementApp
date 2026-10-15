@@ -13,10 +13,5 @@ public partial class AddProductPage : ContentPage, IQueryAttributable
     }
 
     public void ApplyQueryAttributes(IDictionary<string, object> query)
-    {
-        if (query.TryGetValue("ScannedBarcode", out var value) && value is string barcode)
-        {
-            _viewModel.Barcode = barcode;
-        }
-    }
+        => _viewModel.ApplyQueryAttributes(query);
 }

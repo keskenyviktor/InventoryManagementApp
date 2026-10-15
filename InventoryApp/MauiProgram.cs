@@ -23,9 +23,13 @@ namespace InventoryApp
 
             builder.Services.AddSingleton<IProductRepository, DatabaseService>();
             builder.Services.AddSingleton<IAppNavigation, ShellAppNavigation>();
+            builder.Services.AddSingleton<ICameraPermissionService, MauiCameraPermissionService>();
+            builder.Services.AddSingleton<IUiDispatcher, MauiUiDispatcher>();
 
             builder.Services.AddTransient<ProductListViewModel>();
             builder.Services.AddTransient<AddProductViewModel>();
+            builder.Services.AddTransient<ProductDetailViewModel>();
+            builder.Services.AddTransient<BarcodeScannerViewModel>();
             builder.Services.AddTransient<ProductListPage>();
             builder.Services.AddTransient<AddProductPage>();
             builder.Services.AddTransient<ProductDetailPage>();

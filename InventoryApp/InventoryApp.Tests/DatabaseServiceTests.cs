@@ -25,15 +25,15 @@ public class DatabaseServiceTests
             Quantity = 7
         };
 
-        Assert.Equal(1, await database.AddProductAsync(product));
+        await database.AddProductAsync(product);
         Assert.True(product.Id > 0);
         Assert.True(await database.BarcodeExistsAsync(product.Barcode));
 
         product.Quantity = 9;
-        Assert.Equal(1, await database.UpdateProductAsync(product));
+        await database.UpdateProductAsync(product);
         Assert.Equal(9, (await database.GetProductByIdAsync(product.Id))?.Quantity);
 
-        Assert.Equal(1, await database.DeleteProductAsync(product));
+        await database.DeleteProductAsync(product);
         Assert.Null(await database.GetProductByIdAsync(product.Id));
         Assert.False(await database.BarcodeExistsAsync(product.Barcode));
     }

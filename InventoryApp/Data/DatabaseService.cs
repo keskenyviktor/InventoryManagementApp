@@ -77,10 +77,10 @@ public class DatabaseService : IProductRepository
             .ToListAsync();
     }
 
-    public async Task<int> AddProductAsync(Product product)
+    public async Task AddProductAsync(Product product)
     {
         await _initializationTask;
-        return await _database.InsertAsync(product);
+        await _database.InsertAsync(product);
     }
 
     public async Task<bool> BarcodeExistsAsync(string barcode)
@@ -89,16 +89,16 @@ public class DatabaseService : IProductRepository
         return await _database.Table<Product>().FirstOrDefaultAsync(product => product.Barcode == barcode) is not null;
     }
 
-    public async Task<int> UpdateProductAsync(Product product)
+    public async Task UpdateProductAsync(Product product)
     {
         await _initializationTask;
-        return await _database.UpdateAsync(product);
+        await _database.UpdateAsync(product);
     }
 
-    public async Task<int> DeleteProductAsync(Product product)
+    public async Task DeleteProductAsync(Product product)
     {
         await _initializationTask;
-        return await _database.DeleteAsync(product);
+        await _database.DeleteAsync(product);
     }
 
     public async Task<Product?> GetProductByIdAsync(int id)

@@ -38,21 +38,24 @@ InventoryApp/
 ├── Converters/     # Készletértékből színt és művelet-láthatóságot képző konverterek
 ├── Data/           # IProductRepository és SQLite-alapú DatabaseService
 ├── Models/         # Product SQLite-adatmodell
-├── Services/       # Navigációs absztrakció és Shell-implementáció
-├── ViewModels/     # Lista- és újtermék-nézetmodellek
+├── Services/       # Navigáció, kameraengedély és UI-szál absztrakciói
+├── ViewModels/     # Minden oldalhoz külön ViewModel
 ├── Views/          # Lista-, felvételi, részletező és vonalkódolvasó oldalak
 ├── Platforms/      # Platformspecifikus engedélyek és konfiguráció
 └── InventoryApp.Tests/
                   # xUnit unit- és SQLite-integrációs tesztek
 ```
 
+Minden oldalnak saját ViewModelje van: `ProductListPage` → `ProductListViewModel`, `AddProductPage` → `AddProductViewModel`, `ProductDetailPage` → `ProductDetailViewModel`, `BarcodeScannerPage` → `BarcodeScannerViewModel`. A nézetek XAML-kötésekkel jelenítik meg az állapotot és hívják a parancsokat. A code-behind csak a MAUI életciklus- és komponenseseményeket közvetíti a ViewModelnek; az adatkezelés, validáció, navigációs célok és scanner-állapot a ViewModel-rétegben van.
+
 ### Adatelérés és Dependency Inversion
 
 - Az `IProductRepository` írja le a termékek lekérdezéséhez, felvételéhez, módosításához, törléséhez, azonosító szerinti kereséséhez és vonalkód-ellenőrzéséhez szükséges műveleteket.
 - A `DatabaseService` az interfész SQLite-implementációja. Létrehozza a táblát, üres adatbázisnál előállítja a tesztadatokat, majd az adatbázis-műveleteket végzi.
-- A `ProductListViewModel`, az `AddProductViewModel` és a `ProductDetailPage` az `IProductRepository` interfésztől függ, nem a konkrét SQLite-osztálytól. Az implementációt a `MauiProgram` dependency injection konfigurációja adja meg.
-- Ez a felépítés a Dependency Inversion Principle-t alkalmazza, és lehetővé teszi, hogy a ViewModel-tesztekben a repository mock objektummal helyettesíthető legyen.
-- Az alkalmazás Shell-navigációja az `IAppNavigation` interfészen keresztül érhető el ott, ahol a ViewModel navigációt kezdeményez.
+- A `ProductListViewModel`, az `AddProductViewModel` és a `ProductDetailViewModel` az `IProductRepository` interfésztől függ, nem a konkrét SQLite-osztálytól. Az implementációt a `MauiProgram` dependency injection konfigurációja adja meg.
+- A repository írási műveletei `Task` eredményt adnak, nem fedik fel a SQLite-szolgáltató saját visszatérési értékeit.
+- Az `IAppNavigation`, `ICameraPermissionService` és `IUiDispatcher` absztrakciók elválasztják a navigációt, a platformkamera-engedélyt és a UI-szálra történő átirányítást az üzleti logikától.
+- Ez a felépítés a Dependency Inversion Principle-t alkalmazza, és lehetővé teszi, hogy a ViewModel-tesztekben ezek a függőségek Moq mock objektumokkal helyettesíthetők legyenek.
 
 ### Adatmodell és tárolás
 
@@ -89,13 +92,14 @@ Az adatbázis neve `inventory.db3`. A `DatabaseService` inicializálása aszinkr
 **Termékrészletek** (`ProductDetailPage`)
 
 - A kiválasztott terméket azonosító alapján tölti be, és lehetővé teszi az adatainak szerkesztését.
-- A módosításokat az `IProductRepository` menti SQLite-ba.
+- A `ProductDetailViewModel` validálja a mezőket, ellenőrzi a módosított vonalkód egyediségét, és az `IProductRepository` segítségével ment SQLite-ba.
+- A szerkesztőoldalról indított kameraolvasás eredménye a ViewModel vonalkódmezőjét frissíti.
 
 **Vonalkódolvasó** (`BarcodeScannerPage`)
 
 - A ZXing.Net.Maui.Controls `CameraBarcodeReaderView` vezérlőjét használja.
-- Kameraengedélyt kér; a sikeres első találatot a fő szálon dolgozza fel, leállítja a detektálást, majd visszaadja a kódot az előző űrlapnak.
-- A kamera detektálása az oldal megjelenésekor indul, eltűnésekor leáll.
+- A `BarcodeScannerViewModel` az `ICameraPermissionService`-en keresztül kér kameraengedélyt; a `IUiDispatcher` segítségével a sikeres első találat feldolgozása és az űrlapra történő navigáció a UI-szálon történik.
+- A kamera detektálása az oldal megjelenésekor indul, eltűnésekor leáll. Az oldal code-behindja csak továbbítja az eseményt és az életciklus-változásokat a ViewModelnek.
 - Androidon a kameraengedély az `AndroidManifest.xml` fájlban, iOS-en az adatvédelmi célú használati szöveg az `Info.plist` fájlban szerepel. A kameraolvasás Androidon és iOS-en érhető el; a Windows célplatform nem támogatja a ZXing kamerás olvasását.
 
 ### Vonalkódkép megjelenítése
@@ -107,6 +111,7 @@ A lista a vonalkódképet a `barcode.tec-it.com` HTTPS szolgáltatás URI-jábó
 - **.NET MAUI és Shell:** közös alkalmazásstruktúra a projektben célzott Android, iOS, Mac Catalyst és Windows platformokhoz, egyszerű oldalnavigációval.
 - **MVVM és CommunityToolkit.Mvvm:** az állapot, a parancsok és az adat-hozzáférés elkülönül a felülettől; a Toolkit forrásgenerált megfigyelhető tulajdonságokat és parancsokat biztosít.
 - **Repository interfész:** az adatforrás el van választva az alkalmazási logikától; ez támogatja a DIP-et és a mock-alapú tesztelést.
+- **Oldalankénti ViewModel:** mind a négy oldal műveleti logikája és állapota dedikált ViewModelben található; a nézetek felelőssége a megjelenítés és az események továbbítása.
 - **SQLite és `sqlite-net-pcl`:** az adatok helyben, külső szerver nélkül is megmaradnak az alkalmazás újraindításai között.
 - **`CollectionView` és lapozás:** a teljes termékhalmaz nem kerül egyszerre a felületre, ami több ezer elemnél is áttekinthetőbb megjelenítést ad.
 - **ZXing.Net.Maui.Controls:** a kameraolvasó a vonalkód-bevitelt segíti. A listában megjelenő vonalkódkép ettől külön, jelenleg távoli HTTPS-szolgáltatáson keresztül készül.
@@ -136,11 +141,11 @@ iOS build (macOS és megfelelő Apple fejlesztői környezet szükséges):
 dotnet build InventoryApp.csproj -f net9.0-ios
 ```
 
-Az alkalmazás indítása Visual Studio MAUI fejlesztői környezetből, a kívánt telepített emulátort vagy eszközt kiválasztva javasolt. A kameraolvasás teszteléséhez valódi kamerával rendelkező Android- vagy iOS-eszköz, illetve engedélyezett kamera-hozzáférés szükséges. A funkció saját Xiaomi android készüléken lett tesztesztelve.
+Az alkalmazás indítása Visual Studio MAUI fejlesztői környezetből, a kívánt telepített emulátort vagy eszközt kiválasztva javasolt. A kameraolvasás teszteléséhez valódi kamerával rendelkező Android- vagy iOS-eszköz, illetve engedélyezett kamera-hozzáférés szükséges.
 
 ## Automatizált tesztek
 
-Az xUnit projekt a ViewModel-funkciókat Moq mock objektumokkal ellenőrzi. A SQLite-indulóadatok és CRUD műveletek külön integrációs tesztje ideiglenes adatbázist használ.
+Az xUnit projekt a lista, felvételi, részletező és scanner ViewModel-funkcióit Moq mock objektumokkal ellenőrzi. A SQLite-indulóadatok és CRUD műveletek külön integrációs tesztje ideiglenes adatbázist használ.
 
 ```powershell
 dotnet test InventoryApp.Tests\InventoryApp.Tests.csproj -p:EnableWindowsTargeting=true
@@ -149,7 +154,9 @@ dotnet test InventoryApp.Tests\InventoryApp.Tests.csproj -p:EnableWindowsTargeti
 A jelenlegi tesztek a következőket fedik le:
 
 - felvételi űrlap kötelező mezőit, validációját és mentését;
-- ismétlődő vonalkód elutasítását és a scanner oldalra navigálást;
+- ismétlődő vonalkód elutasítását, beolvasott vonalkód átvételét és a scanner oldalra navigálást;
+- termékrészletek betöltését, érvényesítését, módosítását és mentését;
+- scanner engedélykérését, detektálási életciklusát és egyszeri, UI-szálon végrehajtott vonalkód-visszaadást;
 - keresést, üres keresési eredményt és lapozást;
 - készletnövelést, -csökkentést és nulla készletnél törlést;
 - készlethez tartozó szín- és láthatósági konvertereket;
@@ -158,13 +165,13 @@ A jelenlegi tesztek a következőket fedik le:
 ## Továbbfejlesztési lehetőségek
 
 - A lista vonalkódképeinek helyi generálása, hogy ne kelljen a vonalkódokat külső szolgáltatásnak elküldeni, és hálózat nélkül is működjön.
-- Külön `ProductDetailViewModel` létrehozása, valamint a részletező oldal validációjának egységesítése az új termék űrlapjával.
+- Az új termék és a részletező oldal validációs szabályainak közös, tesztelhető szolgáltatásba szervezése.
 - Adatbázis-migrációk és a hibák egységes, felhasználóbarát kezelése.
 - Rendezés, összetettebb készletszűrők, kategóriák és termékekhez kapcsolódó további adatok.
-- Tesztek kiegészítése a részletező képernyővel, navigációs visszatérési adatokkal, adatbázis-hibákkal és különböző kultúrák szerinti számformátumokkal.
-- Kameraolvasási integrációs tesztek valós Android- és iOS-eszközökön.
+- Tesztek kiegészítése adatbázis-hibákkal és különböző kultúrák szerinti számformátumokkal.
+- További kameraolvasási integrációs tesztek valós Android- és iOS-eszközökön.
 - Termékek importálása/exportálása CSV vagy JSON formátumban.
 
 ## Több rendelkezésre álló idő esetén
 
-A kezdeti megoldásnál a részletező oldal egyszerű code-behind logikát használ; ezt külön ViewModelbe és közös validációs szolgáltatásba szervezném át. A vonalkódkép külső szolgáltatásból történő betöltését helyi generálásra cserélném, hogy a kódok ne kerüljenek harmadik félhez, és a megjelenítés internetkapcsolat nélkül is működjön. Emellett a többplatformos viselkedést és az adatbázis-hibák kezelését szélesebb automatizált és eszközön futó tesztkészlettel ellenőrizném.
+A részletező oldal működése már a saját ViewModeljében van; több idő esetén a felvételi és részletező képernyők ismétlődő validációs szabályait közös szolgáltatásba szervezném. A vonalkódkép külső szolgáltatásból történő betöltését helyi generálásra cserélném, hogy a kódok ne kerüljenek harmadik félhez, és a megjelenítés internetkapcsolat nélkül is működjön. Emellett a többplatformos viselkedést és az adatbázis-hibák kezelését szélesebb automatizált és eszközön futó tesztkészlettel ellenőrizném.

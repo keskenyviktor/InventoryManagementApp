@@ -10,7 +10,7 @@ namespace InventoryApp.ViewModels;
 
 public partial class AddProductViewModel : ObservableObject
 {
-    private readonly IProductRepository _databaseService;
+    private readonly IProductRepository _productRepository;
     private readonly IAppNavigation _navigation;
     private bool _nameTouched;
     private bool _barcodeTouched;
@@ -66,10 +66,18 @@ public partial class AddProductViewModel : ObservableObject
     public bool ShowPriceError => !string.IsNullOrEmpty(PriceError);
     public bool ShowQuantityError => !string.IsNullOrEmpty(QuantityError);
 
-    public AddProductViewModel(IProductRepository databaseService, IAppNavigation navigation)
+    public AddProductViewModel(IProductRepository productRepository, IAppNavigation navigation)
     {
-        _databaseService = databaseService;
+        _productRepository = productRepository;
         _navigation = navigation;
+    }
+
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("ScannedBarcode", out var value) && value is string barcode)
+        {
+            Barcode = barcode;
+        }
     }
 
     partial void OnNameChanged(string value)
@@ -123,7 +131,7 @@ public partial class AddProductViewModel : ObservableObject
         try
         {
             var normalizedBarcode = _barcode.Trim();
-            if (await _databaseService.BarcodeExistsAsync(normalizedBarcode))
+            if (await _productRepository.BarcodeExistsAsync(normalizedBarcode))
             {
                 BarcodeError = "Ez a vonalkód már egy másik termékhez tartozik.";
                 return;
@@ -131,7 +139,7 @@ public partial class AddProductViewModel : ObservableObject
 
             TryParsePrice(_price, out var parsedPrice);
             TryParseQuantity(_quantity, out var parsedQuantity);
-            await _databaseService.AddProductAsync(new Product
+            await _productRepository.AddProductAsync(new Product
             {
                 Name = _name.Trim(),
                 Barcode = normalizedBarcode,

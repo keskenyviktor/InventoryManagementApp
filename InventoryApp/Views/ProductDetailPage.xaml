@@ -1,29 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:InventoryApp.ViewModels"
+             x:DataType="viewmodels:ProductDetailViewModel"
              x:Class="InventoryApp.Views.ProductDetailPage"
              Title="Termék részletei">
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="12">
-            <Entry x:Name="NameEntry"
-                   Placeholder="Termék neve" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Placeholder="Termék neve" Text="{Binding Name}" />
+                <Label Text="{Binding NameError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
 
-            <Entry x:Name="BarcodeEntry"
-                   Placeholder="Vonalkód" />
-            <Button Text="Beolvasás kamerával"
-                    Clicked="ScanBarcodeButton_Clicked"
-                    HorizontalOptions="Start" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Placeholder="Vonalkód" Text="{Binding Barcode}" />
+                <Button Text="Beolvasás kamerával"
+                        Command="{Binding ScanBarcodeCommand}"
+                        HorizontalOptions="Start" />
+                <Label Text="{Binding BarcodeError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
 
-            <Entry x:Name="PriceEntry"
-                   Keyboard="Numeric"
-                   Placeholder="Ár" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Keyboard="Numeric" Placeholder="Ár" Text="{Binding Price}" />
+                <Label Text="{Binding PriceError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
 
-            <Entry x:Name="QuantityEntry"
-                   Keyboard="Numeric"
-                   Placeholder="Készlet" />
+            <VerticalStackLayout Spacing="2">
+                <Entry Keyboard="Numeric" Placeholder="Készlet" Text="{Binding Quantity}" />
+                <Label Text="{Binding QuantityError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
 
             <Button Text="Mentés"
-                    Clicked="SaveButton_Clicked" />
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsSaveEnabled}" />
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

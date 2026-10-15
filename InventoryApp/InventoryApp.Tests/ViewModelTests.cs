@@ -92,7 +92,7 @@ public class ViewModelTests
         repository.Setup(database => database.BarcodeExistsAsync("54321")).ReturnsAsync(false);
         repository.Setup(database => database.AddProductAsync(It.IsAny<Product>()))
             .Callback<Product>(product => savedProduct = product)
-            .ReturnsAsync(1);
+            .Returns(Task.CompletedTask);
         navigation.Setup(service => service.GoBackAsync()).Returns(Task.CompletedTask);
         var viewModel = new AddProductViewModel(repository.Object, navigation.Object)
         {
@@ -126,6 +126,121 @@ public class ViewModelTests
         await viewModel.ScanBarcodeCommand.ExecuteAsync(null);
 
         navigation.Verify(service => service.GoToAsync(nameof(BarcodeScannerPage)), Times.Once);
+    }
+
+    [Fact]
+    public void AddProductViewModel_AppliesScannedBarcode()
+    {
+        var viewModel = new AddProductViewModel(
+            Mock.Of<IProductRepository>(),
+            Mock.Of<IAppNavigation>());
+
+        viewModel.ApplyQueryAttributes(new Dictionary<string, object>
+        {
+            ["ScannedBarcode"] = "987654321"
+        });
+
+        Assert.Equal("987654321", viewModel.Barcode);
+    }
+
+    [Fact]
+    public async Task ProductDetailViewModel_LoadsAndSavesChangesThroughRepository()
+    {
+        var product = new Product
+        {
+            Id = 7,
+            Name = "Original",
+            Barcode = "OLD-CODE",
+            Price = 4.50m,
+            Quantity = 2
+        };
+        var repository = new Mock<IProductRepository>();
+        var navigation = new Mock<IAppNavigation>();
+        repository.Setup(database => database.GetProductByIdAsync(7)).ReturnsAsync(product);
+        repository.Setup(database => database.BarcodeExistsAsync("NEW-CODE")).ReturnsAsync(false);
+        repository.Setup(database => database.UpdateProductAsync(product)).Returns(Task.CompletedTask);
+        navigation.Setup(service => service.GoBackAsync()).Returns(Task.CompletedTask);
+        var viewModel = new ProductDetailViewModel(repository.Object, navigation.Object);
+        viewModel.ApplyQueryAttributes(new Dictionary<string, object> { ["Id"] = "7" });
+
+        await viewModel.LoadCommand.ExecuteAsync(null);
+        Assert.Equal("Original", viewModel.Name);
+        Assert.Equal("OLD-CODE", viewModel.Barcode);
+        Assert.True(viewModel.IsSaveEnabled);
+
+        viewModel.Name = "Updated";
+        viewModel.Barcode = "NEW-CODE";
+        viewModel.Price = "10.25";
+        viewModel.Quantity = "5";
+        await viewModel.SaveCommand.ExecuteAsync(null);
+
+        Assert.Equal("Updated", product.Name);
+        Assert.Equal("NEW-CODE", product.Barcode);
+        Assert.Equal(10.25m, product.Price);
+        Assert.Equal(5m, product.Quantity);
+        repository.Verify(database => database.UpdateProductAsync(product), Times.Once);
+        navigation.Verify(service => service.GoBackAsync(), Times.Once);
+    }
+
+    [Fact]
+    public void ProductDetailViewModel_AppliesProductAndScannedBarcodeQueryValues()
+    {
+        var viewModel = new ProductDetailViewModel(
+            Mock.Of<IProductRepository>(),
+            Mock.Of<IAppNavigation>());
+
+        viewModel.ApplyQueryAttributes(new Dictionary<string, object>
+        {
+            ["Id"] = "27",
+            ["ScannedBarcode"] = "SCANNED-CODE"
+        });
+
+        Assert.Equal(27, viewModel.ProductId);
+        Assert.Equal("SCANNED-CODE", viewModel.Barcode);
+    }
+
+    [Fact]
+    public async Task BarcodeScannerViewModel_RequestsPermissionStartsAndStopsDetection()
+    {
+        var permission = new Mock<ICameraPermissionService>();
+        var navigation = new Mock<IAppNavigation>();
+        permission.Setup(service => service.RequestPermissionAsync()).ReturnsAsync(true);
+        var viewModel = new BarcodeScannerViewModel(
+            permission.Object,
+            Mock.Of<IUiDispatcher>(),
+            navigation.Object);
+
+        await viewModel.OnAppearingAsync();
+        Assert.True(viewModel.IsDetecting);
+
+        viewModel.OnDisappearing();
+        Assert.False(viewModel.IsDetecting);
+        permission.Verify(service => service.RequestPermissionAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task BarcodeScannerViewModel_ReturnsOnlyOneScannedBarcodeOnUiDispatcher()
+    {
+        var permission = new Mock<ICameraPermissionService>();
+        permission.Setup(service => service.RequestPermissionAsync()).ReturnsAsync(true);
+        var dispatcher = new Mock<IUiDispatcher>();
+        var navigation = new Mock<IAppNavigation>();
+        navigation.Setup(service => service.GoBackAsync(It.IsAny<IDictionary<string, object>>()))
+            .Returns(Task.CompletedTask);
+        dispatcher.Setup(service => service.InvokeAsync(It.IsAny<Func<Task>>()))
+            .Returns((Func<Task> action) => action());
+        var viewModel = new BarcodeScannerViewModel(permission.Object, dispatcher.Object, navigation.Object);
+        await viewModel.OnAppearingAsync();
+
+        await viewModel.HandleBarcodeDetectedAsync(" 123456789 ");
+        await viewModel.HandleBarcodeDetectedAsync("987654321");
+
+        dispatcher.Verify(service => service.InvokeAsync(It.IsAny<Func<Task>>()), Times.Once);
+        navigation.Verify(
+            service => service.GoBackAsync(It.Is<IDictionary<string, object>>(parameters =>
+                parameters["ScannedBarcode"].Equals("123456789"))),
+            Times.Once);
+        Assert.False(viewModel.IsDetecting);
     }
 
     [Fact]
@@ -168,10 +283,10 @@ public class ViewModelTests
         var zeroStock = new Product { Id = 2, Name = "Empty", Barcode = "B", Quantity = 0 };
         var products = new List<Product> { stocked, zeroStock };
         repository.Setup(database => database.GetProductsAsync()).ReturnsAsync(() => products.ToList());
-        repository.Setup(database => database.UpdateProductAsync(It.IsAny<Product>())).ReturnsAsync(1);
+        repository.Setup(database => database.UpdateProductAsync(It.IsAny<Product>())).Returns(Task.CompletedTask);
         repository.Setup(database => database.DeleteProductAsync(zeroStock))
             .Callback(() => products.Remove(zeroStock))
-            .ReturnsAsync(1);
+            .Returns(Task.CompletedTask);
         var viewModel = new ProductListViewModel(repository.Object, Mock.Of<IAppNavigation>());
         await viewModel.LoadProductsCommand.ExecuteAsync(null);
 
