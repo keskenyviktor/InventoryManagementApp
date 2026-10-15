@@ -21,9 +21,7 @@ namespace InventoryApp
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
 
-            builder.Services.AddSingleton<DatabaseService>();
-            builder.Services.AddSingleton<IProductRepository>(services =>
-                services.GetRequiredService<DatabaseService>());
+            builder.Services.AddSingleton<IProductRepository, DatabaseService>();
             builder.Services.AddSingleton<IAppNavigation, ShellAppNavigation>();
 
             builder.Services.AddTransient<ProductListViewModel>();

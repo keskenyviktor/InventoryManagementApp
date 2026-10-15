@@ -145,7 +145,6 @@
                         Command="{Binding PreviousPageCommand}" />
 
                 <HorizontalStackLayout Grid.Column="1" HorizontalOptions="Center" Spacing="8" VerticalOptions="Center">
-                    <Label Text="Oldal" VerticalTextAlignment="Center" />
                     <Label Text="{Binding CurrentPage}" FontAttributes="Bold" VerticalTextAlignment="Center" />
                     <Label Text="/" VerticalTextAlignment="Center" />
                     <Label Text="{Binding TotalPages}" FontAttributes="Bold" VerticalTextAlignment="Center" />

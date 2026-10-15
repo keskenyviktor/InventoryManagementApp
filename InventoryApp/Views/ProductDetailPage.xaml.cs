@@ -7,13 +7,13 @@ namespace InventoryApp.Views;
 [QueryProperty(nameof(ProductId), "Id")]
 public partial class ProductDetailPage : ContentPage, IQueryAttributable
 {
-    private readonly DatabaseService _databaseService;
+    private readonly IProductRepository _productRepository;
     private Product? _product;
 
-    public ProductDetailPage(DatabaseService databaseService)
+    public ProductDetailPage(IProductRepository productRepository)
     {
         InitializeComponent();
-        _databaseService = databaseService;
+        _productRepository = productRepository;
     }
 
     public int ProductId { get; set; }
@@ -40,7 +40,7 @@ public partial class ProductDetailPage : ContentPage, IQueryAttributable
             return;
         }
 
-        _product = await _databaseService.GetProductByIdAsync(ProductId);
+        _product = await _productRepository.GetProductByIdAsync(ProductId);
 
         if (_product == null)
         {
@@ -82,7 +82,7 @@ public partial class ProductDetailPage : ContentPage, IQueryAttributable
         _product.Price = price;
         _product.Quantity = quantity;
 
-        await _databaseService.UpdateProductAsync(_product);
+        await _productRepository.UpdateProductAsync(_product);
         await Shell.Current.GoToAsync("..");
     }
 
