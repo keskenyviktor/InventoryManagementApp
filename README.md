@@ -5,6 +5,7 @@ Ez a projekt egy .NET MAUI leltáralkalmazás, amely lokális SQLite adatbázisb
 ## Technikai döntések
 - A termékadatok lokális SQLite adatbázisban tárolódnak `sqlite-net-pcl` segítségével.
 - A terméklistában a vonalkódok Code 128 formátumú képként jelennek meg a `ZXing.Net.Maui.Controls` csomaggal.
+- Androidon és iOS-en a termék felvételekor vagy szerkesztésekor kamera segítségével is beolvasható a vonalkód; az alkalmazás kameraengedélyt kér, a beolvasott kódot pedig visszaadja az űrlapnak.
 - A terméklista a blokkoló UI frissítése helyett a SQLite lekérdezésekből töltődik be, így a listázás és a keresés egyszerűen skálázható.
 - A képernyőket kis, jól elkülöníthető részekre bontottam, hogy a funkciók könnyen bővíthetők legyenek.
 

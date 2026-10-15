@@ -79,18 +79,37 @@
                                             </Image.Source>
                                         </Image>
                                         <Label Text="{Binding Barcode, StringFormat='Vonalkód: {0}'}" FontSize="12" TextColor="Gray" />
+                                        <HorizontalStackLayout Grid.Row="1"
+                                                               Grid.Column="1"
+                                                               Spacing="6"
+                                                               VerticalOptions="Center">
+                                            <Button Text="+"
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    CornerRadius="17"
+                                                    FontSize="18"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ProductListViewModel}}, Path=IncreaseQuantityCommand}"
+                                                    CommandParameter="{Binding .}" />
+
+                                            <Button Text="Törlés"
+                                                    IsVisible="{Binding Quantity, Converter={StaticResource QuantityToDeleteVisibleConverter}}"
+                                                    WidthRequest="72"
+                                                    HeightRequest="34"
+                                                    FontSize="11"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ProductListViewModel}}, Path=DecreaseOrDeleteQuantityCommand}"
+                                                    CommandParameter="{Binding .}" />
+
+                                            <Button Text="-"
+                                                    IsVisible="{Binding Quantity, Converter={StaticResource QuantityToDecreaseVisibleConverter}}"
+                                                    WidthRequest="34"
+                                                    HeightRequest="34"
+                                                    CornerRadius="17"
+                                                    FontSize="18"
+                                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ProductListViewModel}}, Path=DecreaseOrDeleteQuantityCommand}"
+                                                    CommandParameter="{Binding .}" />
+                                        </HorizontalStackLayout>
                                     </VerticalStackLayout>
 
-                                    <Border Grid.Column="1"
-                                            Padding="10,6"
-                                            StrokeThickness="0"
-                                            BackgroundColor="{Binding Quantity, Converter={StaticResource QuantityToColorConverter}}"
-                                            StrokeShape="RoundRectangle 12">
-                                        <Label Text="{Binding Quantity, StringFormat='{0} db'}"
-                                               FontSize="12"
-                                               FontAttributes="Bold"
-                                               TextColor="White" />
-                                    </Border>
 
                                     <HorizontalStackLayout Grid.Row="1"
                                                            Grid.Column="0"
@@ -105,35 +124,7 @@
                                         
                                     </HorizontalStackLayout>
 
-                                    <HorizontalStackLayout Grid.Row="1"
-                                                           Grid.Column="1"
-                                                           Spacing="6"
-                                                           VerticalOptions="Center">
-                                        <Button Text="+"
-                                                WidthRequest="34"
-                                                HeightRequest="34"
-                                                CornerRadius="17"
-                                                FontSize="18"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ProductListViewModel}}, Path=IncreaseQuantityCommand}"
-                                                CommandParameter="{Binding .}" />
-
-                                        <Button Text="Törlés"
-                                                IsVisible="{Binding Quantity, Converter={StaticResource QuantityToDeleteVisibleConverter}}"
-                                                WidthRequest="72"
-                                                HeightRequest="34"
-                                                FontSize="11"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ProductListViewModel}}, Path=DecreaseOrDeleteQuantityCommand}"
-                                                CommandParameter="{Binding .}" />
-
-                                        <Button Text="-"
-                                                IsVisible="{Binding Quantity, Converter={StaticResource QuantityToDecreaseVisibleConverter}}"
-                                                WidthRequest="34"
-                                                HeightRequest="34"
-                                                CornerRadius="17"
-                                                FontSize="18"
-                                                Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:ProductListViewModel}}, Path=DecreaseOrDeleteQuantityCommand}"
-                                                CommandParameter="{Binding .}" />
-                                    </HorizontalStackLayout>
+                                    
                                 </Grid>
                             </Border>
                         </SwipeView>
