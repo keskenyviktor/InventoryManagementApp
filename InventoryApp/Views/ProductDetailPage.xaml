@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:viewmodels="clr-namespace:InventoryApp.ViewModels"
+             x:DataType="viewmodels:ProductDetailViewModel"
+             x:Class="InventoryApp.Views.ProductDetailPage"
+             Title="Termék részletei">
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="12">
+            <VerticalStackLayout Spacing="2">
+                <Entry Placeholder="Termék neve" Text="{Binding Name}" />
+                <Label Text="{Binding NameError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="2">
+                <Entry Placeholder="Vonalkód" Text="{Binding Barcode}" />
+                <Button Text="Beolvasás kamerával"
+                        Command="{Binding ScanBarcodeCommand}"
+                        HorizontalOptions="Start" />
+                <Label Text="{Binding BarcodeError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="2">
+                <Entry Keyboard="Numeric" Placeholder="Ár" Text="{Binding Price}" />
+                <Label Text="{Binding PriceError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="2">
+                <Entry Keyboard="Numeric" Placeholder="Készlet" Text="{Binding Quantity}" />
+                <Label Text="{Binding QuantityError}" TextColor="Red" FontSize="12" />
+            </VerticalStackLayout>
+
+            <Button Text="Mentés"
+                    Command="{Binding SaveCommand}"
+                    IsEnabled="{Binding IsSaveEnabled}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
