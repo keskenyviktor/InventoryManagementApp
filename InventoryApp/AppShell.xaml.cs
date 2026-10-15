@@ -9,6 +9,7 @@ namespace InventoryApp
             InitializeComponent();
             Routing.RegisterRoute(nameof(AddProductPage), typeof(AddProductPage));
             Routing.RegisterRoute(nameof(ProductDetailPage), typeof(ProductDetailPage));
+            Routing.RegisterRoute(nameof(BarcodeScannerPage), typeof(BarcodeScannerPage));
         }
     }
 }

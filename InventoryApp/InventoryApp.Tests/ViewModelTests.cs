@@ -3,6 +3,7 @@ using InventoryApp.Converters;
 using InventoryApp.Models;
 using InventoryApp.Services;
 using InventoryApp.ViewModels;
+using InventoryApp.Views;
 using System.Globalization;
 using Moq;
 
@@ -110,6 +111,21 @@ public class ViewModelTests
         Assert.Equal(3m, saved.Quantity);
         repository.Verify(database => database.AddProductAsync(It.IsAny<Product>()), Times.Once);
         navigation.Verify(service => service.GoBackAsync(), Times.Once);
+    }
+
+    [Fact]
+    public async Task AddProductViewModel_ScanCommandOpensScanner()
+    {
+        var navigation = new Mock<IAppNavigation>();
+        navigation.Setup(service => service.GoToAsync(nameof(BarcodeScannerPage)))
+            .Returns(Task.CompletedTask);
+        var viewModel = new AddProductViewModel(
+            Mock.Of<IProductRepository>(),
+            navigation.Object);
+
+        await viewModel.ScanBarcodeCommand.ExecuteAsync(null);
+
+        navigation.Verify(service => service.GoToAsync(nameof(BarcodeScannerPage)), Times.Once);
     }
 
     [Fact]

@@ -4,6 +4,7 @@
              xmlns:viewmodels="clr-namespace:InventoryApp.ViewModels"
              xmlns:models="clr-namespace:InventoryApp.Models"
              xmlns:converters="clr-namespace:InventoryApp.Converters"
+             xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
              x:Class="InventoryApp.Views.ProductListPage"
              Title="Terméklista"
              BackgroundColor="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource Black}}">
@@ -68,6 +69,15 @@
                                 <Grid RowDefinitions="Auto, Auto" ColumnDefinitions="*, Auto" RowSpacing="8" ColumnSpacing="12">
                                     <VerticalStackLayout Grid.Column="0" Spacing="4">
                                         <Label Text="{Binding Name}" FontSize="18" FontAttributes="Bold" />
+                                        <Image WidthRequest="240"
+                                                 HeightRequest="64"
+                                                 Aspect="Fill"
+                                                 HorizontalOptions="Start">
+                                            <Image.Source>
+                                                <UriImageSource Uri="{Binding Barcode, StringFormat='https://barcode.tec-it.com/barcode.ashx?data={0}&amp;code=Code128&amp;dpi=96'}"
+                                                                CachingEnabled="True" />
+                                            </Image.Source>
+                                        </Image>
                                         <Label Text="{Binding Barcode, StringFormat='Vonalkód: {0}'}" FontSize="12" TextColor="Gray" />
                                     </VerticalStackLayout>
 
@@ -92,6 +102,7 @@
                                                FontSize="13"
                                                FontAttributes="Bold"
                                                TextColor="{Binding Quantity, Converter={StaticResource QuantityToColorConverter}}" />
+                                        
                                     </HorizontalStackLayout>
 
                                     <HorizontalStackLayout Grid.Row="1"

@@ -3,6 +3,7 @@ using InventoryApp.Services;
 using InventoryApp.ViewModels;
 using InventoryApp.Views;
 using Microsoft.Extensions.Logging;
+using ZXing.Net.Maui.Controls;
 
 namespace InventoryApp
 {
@@ -13,6 +14,7 @@ namespace InventoryApp
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseBarcodeReader()
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -29,6 +31,7 @@ namespace InventoryApp
             builder.Services.AddTransient<ProductListPage>();
             builder.Services.AddTransient<AddProductPage>();
             builder.Services.AddTransient<ProductDetailPage>();
+            builder.Services.AddTransient<BarcodeScannerPage>();
 
 #if DEBUG
             builder.Logging.AddDebug();

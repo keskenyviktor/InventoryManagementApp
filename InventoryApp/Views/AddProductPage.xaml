@@ -21,6 +21,9 @@
             <VerticalStackLayout Spacing="2">
                 <Entry Placeholder="Vonalkód"
                        Text="{Binding Barcode}" />
+                <Button Text="Beolvasás kamerával"
+                        Command="{Binding ScanBarcodeCommand}"
+                        HorizontalOptions="Start" />
                 <Label Text="{Binding BarcodeError}" TextColor="Red" FontSize="12"
                        IsVisible="{Binding ShowBarcodeError}" />
                 <Label Text="• Adjon meg egy egyedi vonalkódot."

@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.Input;
 using InventoryApp.Data;
 using InventoryApp.Models;
 using InventoryApp.Services;
+using InventoryApp.Views;
 
 namespace InventoryApp.ViewModels;
 
@@ -145,6 +146,9 @@ public partial class AddProductViewModel : ObservableObject
             IsSaving = false;
         }
     }
+
+    [RelayCommand]
+    private Task ScanBarcodeAsync() => _navigation.GoToAsync(nameof(BarcodeScannerPage));
 
     private void ValidateAll()
     {

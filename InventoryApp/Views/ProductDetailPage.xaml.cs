@@ -5,7 +5,7 @@ using InventoryApp.Models;
 namespace InventoryApp.Views;
 
 [QueryProperty(nameof(ProductId), "Id")]
-public partial class ProductDetailPage : ContentPage
+public partial class ProductDetailPage : ContentPage, IQueryAttributable
 {
     private readonly DatabaseService _databaseService;
     private Product? _product;
@@ -18,9 +18,22 @@ public partial class ProductDetailPage : ContentPage
 
     public int ProductId { get; set; }
 
+    public void ApplyQueryAttributes(IDictionary<string, object> query)
+    {
+        if (query.TryGetValue("ScannedBarcode", out var value) && value is string barcode)
+        {
+            BarcodeEntry.Text = barcode;
+        }
+    }
+
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+
+        if (_product is not null)
+        {
+            return;
+        }
 
         if (ProductId <= 0)
         {
@@ -71,5 +84,10 @@ public partial class ProductDetailPage : ContentPage
 
         await _databaseService.UpdateProductAsync(_product);
         await Shell.Current.GoToAsync("..");
+    }
+
+    private async void ScanBarcodeButton_Clicked(object sender, EventArgs e)
+    {
+        await Shell.Current.GoToAsync(nameof(BarcodeScannerPage));
     }
 }

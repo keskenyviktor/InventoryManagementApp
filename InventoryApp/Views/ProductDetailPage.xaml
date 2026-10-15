@@ -10,6 +10,9 @@
 
             <Entry x:Name="BarcodeEntry"
                    Placeholder="Vonalkód" />
+            <Button Text="Beolvasás kamerával"
+                    Clicked="ScanBarcodeButton_Clicked"
+                    HorizontalOptions="Start" />
 
             <Entry x:Name="PriceEntry"
                    Keyboard="Numeric"
